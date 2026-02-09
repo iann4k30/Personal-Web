@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Interactive Portfolio | Visual Masterpiece</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --primary: #6366f1;
+            --text-main: #0f172a;
+            --text-sub: #64748b;
+            --border: rgba(0, 0, 0, 0.05);
+            --transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        [data-theme="dark"] {
+            --bg: #050505;
+            --card-bg: rgba(15, 15, 20, 0.8);
+            --primary: #818cf8;
+            --text-main: #f1f5f9;
+            --text-sub: #94a3b8;
+            --border: rgba(255, 255, 255, 0.05);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; cursor: none; }
+        html { scroll-behavior: smooth; }
+
+        body { 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            transition: background-color 0.8s ease;
+            overflow-x: hidden;
+        }
+
+        /* --- Grainy Texture Overlay --- */
+        body::before {
+            content: "";
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.03; pointer-events: none; z-index: 9999;
+            background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+        }
+
+        #cursor {
+            width: 10px; height: 10px; background: var(--primary);
+            border-radius: 50%; position: fixed; pointer-events: none; z-index: 10000;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed; top: 25px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; width: fit-content; padding: 10px 25px;
+            background: var(--card-bg); backdrop-filter: blur(20px);
+            border-radius: 50px; border: 1px solid var(--border);
+            display: flex; align-items: center; gap: 30px;
+        }
+
+        nav a { text-decoration: none; color: var(--text-sub); font-weight: 600; font-size: 0.8rem; letter-spacing: 1px; }
+
+        /* --- Hero & 3D Center --- */
+        section { min-height: 100vh; display: flex; align-items: center; justify-content: center; perspective: 1500px; }
+
+        .main-wrapper {
+            position: relative;
+            transform-style: preserve-3d;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* --- THE 3D SNAKE FIX --- */
+        .snake-orbit-3d {
+            position: absolute;
+            width: 550px; height: 550px;
+            transform-style: preserve-3d;
+            animation: rotate3D 10s linear infinite;
+            pointer-events: none;
+        }
+
+        .snake-ring {
+            width: 100%; height: 100%;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            border-top-color: transparent; /* Membuatnya seperti ular/setengah lingkaran */
+            border-left-color: transparent;
+            opacity: 0.6;
+            filter: drop-shadow(0 0 10px var(--primary));
+        }
+
+        @keyframes rotate3D {
+            0% { transform: rotateX(70deg) rotateZ(0deg); }
+            100% { transform: rotateX(70deg) rotateZ(360deg); }
+        }
+
+        /* --- Profile Card --- */
+        .profile-container {
+            width: 280px; height: 380px;
+            background: var(--card-bg);
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            position: relative;
+            z-index: 10; /* Berada di tengah orbit */
+            transform-style: preserve-3d;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.2);
+        }
+
+        .profile-container img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* --- NEW: Floating Skill Chips 3D --- */
+        .skill-chip {
+            position: absolute;
+            padding: 10px 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            font-size: 0.7rem; font-weight: 800;
+            z-index: 15;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            pointer-events: none;
+        }
+
+        /* --- Footer Social --- */
+        footer {
+            padding: 100px 10%;
+            background: var(--bg);
+            text-align: center;
+        }
+
+        .social-grid {
+            display: flex; gap: 20px; justify-content: center; margin-top: 50px;
+        }
+
+        .social-link {
+            width: 60px; height: 60px; border-radius: 20px;
+            background: var(--card-bg); border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-main); transition: var(--transition);
+        }
+
+        .social-link:hover { background: var(--primary); color: white; transform: translateY(-10px); }
+
+        .shimmer {
+            background: linear-gradient(90deg, var(--text-main), var(--primary), var(--text-main));
+            background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shimmer 5s infinite linear;
+        }
+        @keyframes shimmer { to { background-position: 200%; } }
+
+    </style>
+</head>
+<body data-theme="light">
+
+    <div id="cursor"></div>
+
+    <nav>
+        <a href="#home" class="mag">HOME</a>
+        <a href="#social" class="mag">SOCIAL</a>
+        <div class="theme-switch" onclick="toggleTheme()" style="width: 30px; height: 15px; background: #ccc; border-radius: 10px; cursor: pointer; position: relative;">
+            <div id="ball" style="width: 11px; height: 11px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.3s;"></div>
+        </div>
+    </nav>
+
+    <section id="home">
+        <div class="main-wrapper" id="scene">
+            
+            <div class="snake-orbit-3d">
+                <div class="snake-ring"></div>
+            </div>
+            <div class="snake-orbit-3d" style="animation-duration: 15s; width: 450px; height: 450px; animation-direction: reverse;">
+                <div class="snake-ring" style="border-bottom-color: var(--primary); border-top-color: transparent; opacity: 0.3;"></div>
+            </div>
+
+            <div class="profile-container mag">
+                <img src="photo_6075727919260044985_w.jpg" alt="Profile">
+            </div>
+
+            <div class="skill-chip mag" style="transform: translate3d(200px, -150px, 50px);">UI/UX</div>
+            <div class="skill-chip mag" style="transform: translate3d(-220px, 100px, 80px);">HTML</div>
+            <div class="skill-chip mag" style="transform: translate3d(180px, 150px, 30px);">CUSTOM ROM</div>
+        </div>
+    </section>
+
+    <div style="text-align: center; margin-top: -150px;">
+        <h1 class="shimmer" style="font-size: 5vw; font-weight: 800; letter-spacing: -2px;">HERI ILHAM AL'VIANSYAH</h1>
+    </div>
+
+    <footer id="social">
+        <h2 style="font-size: 2.5rem; letter-spacing: -1px;">Let's Talk</h2>
+        <div class="social-grid">
+            <a href="https://www.instagram.com/sayurkangkung969/" class="social-link mag"><i data-lucide="instagram"></i></a>
+            <a href="https://github.com/iann4k30" class="social-link mag"><i data-lucide="github"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // 1. Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const ball = document.getElementById('ball');
+            if(body.getAttribute('data-theme') === 'dark') {
+                body.setAttribute('data-theme', 'light');
+                ball.style.transform = 'translateX(0)';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                ball.style.transform = 'translateX(15px)';
+            }
+        }
+
+        // 2. Custom Cursor
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // 3. 3D Scene Interaction
+        const scene = document.getElementById('scene');
+        document.addEventListener('mousemove', (e) => {
+            const x = (window.innerWidth / 2 - e.clientX) / 20;
+            const y = (window.innerHeight / 2 - e.clientY) / 20;
+            // Rotasi scene utama
+            scene.style.transform = `rotateY(${x}deg) rotateX(${y}deg)`;
+        });
+
+        // 4. Magnetic Effect
+        document.querySelectorAll('.mag').forEach(el => {
+            el.addEventListener('mousemove', (e) => {
+                const rect = el.getBoundingClientRect();
+                const mx = (e.clientX - rect.left - rect.width/2) * 0.3;
+                const my = (e.clientY - rect.top - rect.height/2) * 0.3;
+                el.style.transform = `translate3d(${mx}px, ${my}px, 50px)`;
+                cursor.style.transform = 'scale(4)';
+                cursor.style.opacity = '0.3';
+            });
+            el.addEventListener('mouseleave', () => {
+                el.style.transform = `translate3d(0, 0, 0)`;
+                cursor.style.transform = 'scale(1)';
+                cursor.style.opacity = '1';
+            });
+        });
+    </script>
+</body>
+</html>
